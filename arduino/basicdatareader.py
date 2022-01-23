@@ -44,17 +44,17 @@ def getreading(portname, baud):
             line = line.replace("##","")
             line = line.replace("$$","")
 
-            words = line.split("#")
-            print (words[0].split(",")[1])
+            words = line.split(",")
+            print (words[0])
             # reading["pm1"] = words[0].split(":")[1]
-            reading["ecg"] = words[1].split(",")[1]
+            reading["ecg"] = words[0]
             
-            reading["rr"] = words[2].split(":")[1]
-            reading["emg"] = words[3].split(":")[1]
+            reading["rr"] = words[1]
+            reading["emg"] = words[2]
             # reading["nc0-5"] = words[4].split(":")[1]
             # reading["tps"] = words[9].split(":")[1]
-            reading["tmp"] = words[4].split(":")[1]
-            reading["gsr"] = words[5].split(":")[1]
+            reading["tmp"] = words[3]
+            reading["gsr"] = words[4]
             # reading["voc"] = words[12].split(":")[1]
             ts = str(int(time.time()))
             reading["ts"] = ts
