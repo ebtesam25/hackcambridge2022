@@ -18,6 +18,28 @@ client = MongoClient(mongostr)
 
 db = client["chapped"]
 
+count = 0
+emgs = []
+semg = 0
+tmps = []
+stmp = 0
+gsrs = []
+sgsr = 0
+rr = []
+flag1 = False
+
+def resetvalues():
+    global count, rr, emgs, semg, temps, stmp, gsrs, sgsr, flag1
+    count = 0
+    emgs = []
+    semg = 0
+    tmps = []
+    stmp = 0
+    gsrs = []
+    sgsr = 0
+    rr = []
+    flag1 = False
+
 def getreading(portname, baud):
 
 
@@ -32,23 +54,15 @@ def getreading(portname, baud):
 
     while True:
         line = ser.readline()
-        print("read a line")
+        #print("read a line")
         line = line.decode('utf8')
         ##line = line [2:13]
         # line = line.replace(" ", "")
         line=line.rstrip()
         print(line)
-        
-        rr = []
-        
-        emgs = []
-        semg = 0
-        tmps = []
-        stmp = 0
-        gsrs = []
-        sgsr = 0
-        
-        count = 0
+
+        global count, rr, emgs, semg, temps, stmp, gsrs, sgsr
+        global flag1
 
         if "##" in line and "$$" in line:
             # complete line read
@@ -56,47 +70,54 @@ def getreading(portname, baud):
             line = line.replace("$$","")
 
             words = line.split(",")
-            print (words[0])
+            #print (words[0])
             # reading["pm1"] = words[0].split(":")[1]
-            
-            if int(words[0]) != 0:
-                
-                rr.append(int(words[1]) *10)
-                count = count + 1
-            
+
+            print(words[1])
+            if int(words[1]) != 0:
+                if not flag1:
+                    flag1 = True
+                    rr.append(int(words[1]))
+                    count = count + 1
+            else:
+                flag1 = False
+
+
             emgs.append(words[2])
             semg = semg + int(words[2])
-            
+
             tmps.append(words[3])
             stmp = stmp + int(words[3])
-            
+
             gsrs.append(words[4])
             sgsr = sgsr + int(words[4])
-            
+
             # count = count + 1
-            
-            if count >= 1000:
-                tdf, oc = gethrv(rr)
-                
+            print(f"count: {count}")
+
+            if count >= 50:
+                print(rr)
+                tdf, oc = basichrv.gethrv(rr)
+
                 reading['ectopic'] = oc
                 reading['hrstd'] = tdf['std_hr']
                 reading['hr'] = tdf['mean_hr']
                 reading['hrv'] = tdf['sdnn']
-                
+
                 reading['emg'] = int(semg/len(emgs))
-                reading['tmp'] = int(stmp/len(tmps))
+                reading['tmp'] = float(stmp/len(tmps))/100.0
                 reading['gsr'] = int(sgsr/len(gsrs))
-                
+
                 ts = str(int(time.time()))
                 reading["ts"] = ts
 
                 reading["uid"] = "8"
-                
+
                 return reading
-                
-                        
+
+
             # reading["ecg"] = words[0]
-            
+
             # reading["rr"] = words[1]
             # reading["emg"] = words[2]
             # # reading["nc0-5"] = words[4].split(":")[1]
@@ -106,14 +127,14 @@ def getreading(portname, baud):
             # # reading["voc"] = words[12].split(":")[1]
 
             # return reading
-    
-            
+
+
 
 
 def insertdata(r, db):
     payload = {}
-    
-    
+
+
 
     payload ["deviceid"] = "d1"
     payload ["userid"] = r['uid']
@@ -131,21 +152,24 @@ def insertdata(r, db):
     print ("payload ready")
     print (payload)
 
-    result=db.testdata.insert_one(payload)            
+    result=db.testdata.insert_one(payload)
+    time.sleep(20)
+    #result=db.rawdata.insert_one(payload)
 
-        
+
 while True:
-        
+
     r = getreading('COM3', 115200)
-    
-    
+
+
 
     print (r)
-    
+
     insertdata(r, db)
-    
-        
-        
+    resetvalues()
+
+
+
 # # [nfc, bpm] = getreading('/dev/ttyACM0', 115200)
 # i = 0
 # while True:
