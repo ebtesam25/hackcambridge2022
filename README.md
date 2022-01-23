@@ -1,1 +1,3 @@
-# hackcambridge2022
+# hackcambridge2022  
+codebase for CHAPPED  
+and EPSUM  
