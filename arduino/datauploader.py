@@ -86,8 +86,9 @@ def getreading(portname, baud):
             emgs.append(words[2])
             semg = semg + int(words[2])
 
-            tmps.append(words[3])
-            stmp = stmp + int(words[3])
+            if words[3] != 0:
+                tmps.append(words[3])
+                stmp = stmp + int(words[3])
 
             gsrs.append(words[4])
             sgsr = sgsr + int(words[4])
@@ -95,7 +96,7 @@ def getreading(portname, baud):
             # count = count + 1
             print(f"count: {count}")
 
-            if count >= 50:
+            if count >= 100:
                 print(rr)
                 tdf, oc = basichrv.gethrv(rr)
 
@@ -152,9 +153,9 @@ def insertdata(r, db):
     print ("payload ready")
     print (payload)
 
-    result=db.testdata.insert_one(payload)
-    time.sleep(20)
-    #result=db.rawdata.insert_one(payload)
+    #result=db.testdata.insert_one(payload)
+    #time.sleep(20)
+    result=db.rawdata.insert_one(payload)
 
 
 while True:
