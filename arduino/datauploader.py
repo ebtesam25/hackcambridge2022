@@ -58,7 +58,11 @@ def getreading(portname, baud):
             words = line.split(",")
             print (words[0])
             # reading["pm1"] = words[0].split(":")[1]
-            rr.append(int(words[1]) *10)
+            
+            if int(words[0]) != 0:
+                
+                rr.append(int(words[1]) *10)
+                count = count + 1
             
             emgs.append(words[2])
             semg = semg + int(words[2])
@@ -69,7 +73,7 @@ def getreading(portname, baud):
             gsrs.append(words[4])
             sgsr = sgsr + int(words[4])
             
-            count = count + 1
+            # count = count + 1
             
             if count >= 1000:
                 tdf, oc = gethrv(rr)
@@ -79,9 +83,9 @@ def getreading(portname, baud):
                 reading['hr'] = tdf['mean_hr']
                 reading['hrv'] = tdf['sdnn']
                 
-                reading['emg'] = int(semg/1000)
-                reading['tmp'] = int(stmp/1000)
-                reading['gsr'] = int(sgsr/1000)
+                reading['emg'] = int(semg/len(emgs))
+                reading['tmp'] = int(stmp/len(tmps))
+                reading['gsr'] = int(sgsr/len(gsrs))
                 
                 ts = str(int(time.time()))
                 reading["ts"] = ts
